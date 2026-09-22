@@ -1,10 +1,18 @@
-import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Ticket, LogOut, Sun, Moon } from 'lucide-react';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Ticket, LogOut, Sun, Moon, Users, Bell, User } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Layout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <div className="min-h-screen flex bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
@@ -12,12 +20,21 @@ export default function Layout() {
       <aside className="w-64 bg-slate-900 dark:bg-slate-950 text-white flex flex-col border-r border-slate-800 dark:border-slate-800 transition-colors duration-200">
         <div className="p-6">
           <h1 className="text-xl font-bold flex items-center gap-2">
-            <span className="bg-blue-600 p-2 rounded-lg text-white">HD</span>
             Helpdesk
           </h1>
         </div>
         
         <nav className="flex-1 px-4 space-y-2 mt-4">
+          <Link
+            to="/users/:id"
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+              location.pathname.startsWith('/users/:id') ? 'bg-blue-600 text-white' : 'hover:bg-slate-800 text-slate-300 hover:text-white'
+            }`}
+          >
+            <User size={20} />
+            Perfil
+          </Link>
+
           <Link
             to="/"
             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
@@ -37,6 +54,26 @@ export default function Layout() {
             <Ticket size={20} />
             Chamados
           </Link>
+
+          {user?.role === 'ADMIN' && (<Link
+            to="/users"
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+              location.pathname.startsWith('/users') ? 'bg-blue-600 text-white' : 'hover:bg-slate-800 text-slate-300 hover:text-white'
+            }`}
+          >
+            <Users size={20} />
+            Usuários
+          </Link>)}
+
+          <Link
+            to="/notifications"
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+              location.pathname.startsWith('/notifications') ? 'bg-blue-600 text-white' : 'hover:bg-slate-800 text-slate-300 hover:text-white'
+            }`}
+          >
+            <Bell size={20} />
+            Notificações
+          </Link>
         </nav>
 
         <div className="p-4 border-t border-slate-800">
@@ -44,7 +81,7 @@ export default function Layout() {
             {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
             {theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}
           </button>
-          <button className="flex items-center gap-3 px-4 py-3 w-full rounded-lg hover:bg-slate-800 transition-colors text-slate-300 hover:text-white">
+          <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-3 w-full rounded-lg hover:bg-slate-800 transition-colors text-slate-300 hover:text-white">
             <LogOut size={20} />
             Sair
           </button>
