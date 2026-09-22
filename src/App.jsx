@@ -11,6 +11,8 @@ function App() {
     <ThemeProvider>
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<Layout />}>
+          </Route>
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
