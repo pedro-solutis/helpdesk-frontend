@@ -44,9 +44,16 @@ export const ticketService = {
 
   // GET /tickets/customer/{id}
   getTicketByCustomerId: async (id, page = 0, size = 10) => {
-    const params = {page, size}
+    const params = {page, size};
     const response = await api.get(`/tickets/customer/${id}`, { params });
     return response.data;
+  },
+
+  // GET /ticket/technician/{id}
+  getTicketByTechnicianId: async (id, page = 0, size = 10) => {
+    const params = {page, size};
+    const respose = await api.get(`ticket/technician/${id}`,{ params });
+    return respose.data;
   },
 
   // POST /tickets
