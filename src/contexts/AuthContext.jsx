@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { authService } from '../services/authService';
+import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext();
 
@@ -10,7 +11,17 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const token = sessionStorage.getItem('token');
     if (token) {
-      setUser({ token }); 
+      try {
+        const decoded = jwtDecode(token);
+        if (decoded.exp * 1000 < Date.now()) {
+           logout();
+        } else {
+           setUser({ token, ...decoded }); 
+        }
+      } catch (error) {
+        console.error("Token inválido", error);
+        logout();
+      }
     }
     setLoading(false);
   }, []);
@@ -19,7 +30,8 @@ export function AuthProvider({ children }) {
     const data = await authService.login(email, password);
     if (data && data.token) {
       sessionStorage.setItem('token', data.token);
-      setUser({ token: data.token });
+      const decoded = jwtDecode(data.token);
+      setUser({ token: data.token, ...decoded });
     }
   };
 
