@@ -26,7 +26,6 @@ export const ticketService = {
   // GET /tickets/filter?status=...&priority=...
   filterTickets: async (filters, page = 0, size = 10) => {
     const params = { page, size, ...filters };
-    // Remove null or undefined params
     Object.keys(params).forEach(key => {
       if (params[key] === null || params[key] === '' || params[key] === undefined) {
         delete params[key];
@@ -45,6 +44,7 @@ export const ticketService = {
 
   // GET /tickets/customer/{id}
   getTicketByCustomerId: async (id, page = 0, size = 10) => {
+    const params = {page, size}
     const response = await api.get(`/tickets/customer/${id}`, { params });
     return response.data;
   },
