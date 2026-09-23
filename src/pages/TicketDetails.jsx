@@ -172,6 +172,19 @@ export default function TicketDetails() {
     }
   };
 
+    const handleCloseResolvedTicket = async () => {
+    try {
+      if (window.confirm("Deseja realmente encerrar este chamado?")) {
+        await ticketService.closeTicket(id);
+        alert('Chamado encerrado com sucesso!');
+        fetchTicket();
+      }
+    } catch (error) {
+      console.error('Erro ao encerrar chamado', error);
+      alert('Erro ao encerrar chamado.');
+    }
+  };
+
   if (loading) {
     return <div className="p-8 text-center text-slate-500">Carregando chamado...</div>;
   }
@@ -195,24 +208,37 @@ export default function TicketDetails() {
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Chamado #{ticket.id}</p>
               <h1 className="text-2xl font-bold text-slate-800 dark:text-white">{ticket.title}</h1>
             </div>
-            <div className="flex gap-2">
-              <span className={`px-3 py-1 rounded-full text-sm font-medium
-                    ${ticket.status === 'OPEN' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' : ''}
-                    ${ticket.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' : ''}
-                    ${ticket.status === 'WAITING' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' : ''}
-                    ${ticket.status === 'RESOLVED' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : ''}
-                    ${ticket.status === 'CLOSED' ? 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300' : ''}
-              `}>
-                {translateStatus(ticket.status)}
-              </span>
-              <span className={`px-3 py-1 rounded-full text-sm font-medium
-                    ${ticket.priority === 'CRITICAL' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' : ''}
-                    ${ticket.priority === 'HIGH' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400' : ''}
-                    ${ticket.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' : ''}
-                    ${ticket.priority === 'LOW' ? 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300' : ''}
-              `}>
-                {translatePriority(ticket.priority)}
-              </span>
+            <div className="flex items-center gap-4">
+              <div className="flex gap-2">
+                {ticket.status === 'RESOLVED' && (user?.role === 'ADMIN' || user?.role === 'CLIENT') && (
+                  <button 
+                    onClick={handleCloseResolvedTicket}
+                    className="px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
+                  >
+                    <Check size={16} />
+                    Encerrar Chamado
+                  </button>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <span className={`px-3 py-1 rounded-full text-sm font-medium
+                      ${ticket.status === 'OPEN' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' : ''}
+                      ${ticket.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' : ''}
+                      ${ticket.status === 'WAITING' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' : ''}
+                      ${ticket.status === 'RESOLVED' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : ''}
+                      ${ticket.status === 'CLOSED' ? 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300' : ''}
+                `}>
+                  {translateStatus(ticket.status)}
+                </span>
+                <span className={`px-3 py-1 rounded-full text-sm font-medium
+                      ${ticket.priority === 'CRITICAL' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' : ''}
+                      ${ticket.priority === 'HIGH' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400' : ''}
+                      ${ticket.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' : ''}
+                      ${ticket.priority === 'LOW' ? 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300' : ''}
+                `}>
+                  {translatePriority(ticket.priority)}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -248,7 +274,7 @@ export default function TicketDetails() {
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Descrição do Problema</h3>
-            {user?.role === 'CLIENT' && !isEditingDesc && (
+            {user?.role === 'CLIENT' && !isEditingDesc && ticket.status !== 'CLOSED' && (
               <button 
                 onClick={() => setIsEditingDesc(true)}
                 className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
@@ -292,7 +318,7 @@ export default function TicketDetails() {
       </div>
 
       {/* Ações / Painel de Gestão */}
-      {(user?.role === 'ADMIN' || user?.role === 'TECHNICIAN') && (
+      {(user?.role === 'ADMIN' || user?.role === 'TECHNICIAN') && ticket.status !== 'CLOSED' && (
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-colors duration-200">
           <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
             <Settings2 size={20} className="text-slate-500" />
@@ -375,7 +401,6 @@ export default function TicketDetails() {
                     <option value="IN_PROGRESS">Em Atendimento</option>
                     <option value="WAITING">Aguardando</option>
                     <option value="RESOLVED">Resolvido</option>
-                    {user?.role === 'ADMIN' && (<option value="CLOSED">Fechado</option>)}
                   </select>
                   <div className="flex gap-2">
                     <button 
