@@ -124,7 +124,7 @@ export default function Dashboard() {
                     <Info size={20}/>
                     Detalhes
                   </Link>
-                  {user?.role !== 'TECHNICIAN'(
+                  {user?.role !== 'TECHNICIAN' && (
                     <Link to={`/tickets/${ticket.id}`} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium">
                       <Trash size={20}/>
                       Deletar
