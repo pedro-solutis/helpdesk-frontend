@@ -40,10 +40,10 @@ export default function Dashboard() {
         const data = await ticketService.getTickets(0, 5);
         setTickets(data.content || []);
       }else if (user?.role === 'TECHNICIAN'){
-        const data = await ticketService.getTicketByTechnicianId(user?.id);
+        const data = await ticketService.getTickets(0, 5, { technicianId: user?.id });
         setTickets(data.content || []);
       }else {
-        const data = await ticketService.getTicketByCustomerId(user?.id);
+        const data = await ticketService.getTickets(0, 5, { customerId: user?.id });
         setTickets(data.content || []);
       }
     } catch (error) {

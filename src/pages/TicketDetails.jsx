@@ -326,7 +326,7 @@ export default function TicketDetails() {
                     >
                       <option value="">Selecione um técnico...</option>
                       {technicians.map((tech) => (
-                        <option key={tech.id} value={tech.name}>
+                        <option key={tech.id} value={tech.id}>
                           {tech.name} (ID: {tech.id})
                         </option>
                       ))}
