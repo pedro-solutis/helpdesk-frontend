@@ -49,11 +49,11 @@ export const ticketService = {
     return response.data;
   },
 
-  // GET /ticket/technician/{id}
+  // GET /tickets/technician/{id}
   getTicketByTechnicianId: async (id, page = 0, size = 10) => {
     const params = {page, size};
-    const respose = await api.get(`ticket/technician/${id}`,{ params });
-    return respose.data;
+    const response = await api.get(`/tickets/technician/${id}`,{ params });
+    return response.data;
   },
 
   // POST /tickets
