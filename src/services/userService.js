@@ -2,8 +2,8 @@ import api from './api';
 
 export const userService = {
   // GET /users
-  getUsers: async (page = 0, size = 10) => {
-    const response = await api.get('/users', { params: { page, size } });
+  getUsers: async (page = 0, size = 10, filters = {}) => {
+    const response = await api.get('/users', { params: { page, size, ...filters } });
     return response.data;
   },
 
@@ -13,9 +13,9 @@ export const userService = {
     return response.data;
   },
 
-  // GET /users/technicians
+  // GET /users?role=TECHNICIAN
   getByTechnicians: async (page = 0, size = 10) => {
-    const response = await api.get('/users/technicians', { params: { page, size }});
+    const response = await api.get('/users', { params: { page, size, role: 'TECHNICIAN' }});
     return response.data;
   },
 
