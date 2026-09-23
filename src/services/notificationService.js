@@ -1,26 +1,21 @@
 import api from "./api";
 
 export const notificationService = {
-    getAllNotifications: async () => {
-        // GET /notifications
-        const response = await api.get('/notifications');
+    // GET /notifications
+    getAllNotifications: async (page = 0, size = 10, filters = {}) => {
+        const params = { page, size, ...filters };
+        const response = await api.get('/notifications', { params });
         return response.data;
     },
 
-    getByRecipientId: async () => {
-        // GET /notifications/recipient/{id}
-        const response = await api.get(`/notifications/recipient/${id}`);
-        return response.data;
-    },
-
-    getByNotificationId: async () => {
-        // GET /notifications/{id}
+    // GET /notifications/{id}
+    getByNotificationId: async (id) => {
         const response = await api.get(`/notifications/${id}`);
         return response.data;
     },
 
-    readNotification: async () => {
-        // PATCH /notifications/{id}
+    // PATCH /notifications/{id}
+    readNotification: async (id) => {
         const response = await api.patch(`/notifications/${id}`);
         return response.data;
     }
