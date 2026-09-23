@@ -3,6 +3,7 @@ import { AlertCircle, CheckCircle, Clock, FileText, Info, Ticket, Trash } from '
 import { ticketService } from '../services/ticketService';
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
+import { translateStatus } from '../utils/translations';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -113,7 +114,7 @@ export default function Dashboard() {
                 <td className="p-4">{ticket.title}</td>
                 <td className="p-4">
                   <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300">
-                    {ticket.status}
+                    {translateStatus(ticket.status)}
                   </span>
                 </td>
                 <td className="p-4 text-slate-500 dark:text-slate-400">
