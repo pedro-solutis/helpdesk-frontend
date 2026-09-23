@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import TicketDetails from './pages/TicketDetails';
 import TicketList from './pages/TicketList';
+import TicketForm from './pages/TicketForm';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
@@ -23,6 +24,7 @@ function App() {
             <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
               <Route index element={<Dashboard />} />
               <Route path="tickets" element={<TicketList />} />
+              <Route path="tickets/new" element={<TicketForm />} />
               <Route path="tickets/:id" element={<TicketDetails />} />
             </Route>
           </Routes>
