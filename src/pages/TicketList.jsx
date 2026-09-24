@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Plus } from 'lucide-react';
+import { Search, Plus, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ticketService } from '../services/ticketService';
 import { translatePriority, translateStatus } from '../utils/translations';
@@ -40,7 +40,27 @@ export default function TicketList() {
 
       const data = await ticketService.getTickets(currentPage, 10, filters);
       setTotalPages(data.totalPages || 0); 
-      setTickets(data.content || []);
+      const fetchedTickets = data.content || [];
+      
+      if (user?.role !== 'CLIENT' && fetchedTickets.length > 0) {
+        try {
+          const usersData = await userService.getUsers(0, 1000);
+          const usersMap = {};
+          if (usersData && usersData.content) {
+            usersData.content.forEach(u => { usersMap[u.id] = u.name; });
+          }
+          const enriched = fetchedTickets.map(t => ({
+            ...t,
+            customerName: t.customerId ? (usersMap[t.customerId] || 'Desconhecido') : 'Desconhecido'
+          }));
+          setTickets(enriched);
+        } catch (e) {
+          console.error("Erro ao enriquecer clientes", e);
+          setTickets(fetchedTickets);
+        }
+      } else {
+        setTickets(fetchedTickets);
+      }
     } catch (error) {
       console.error('Erro ao buscar chamados', error);
     } finally {
@@ -131,31 +151,31 @@ export default function TicketList() {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 text-sm text-slate-500 dark:text-slate-400">
-              <th className="p-4 font-medium">ID</th>
-              <th className="p-4 font-medium">Título</th>
-              <th className="p-4 font-medium">Cliente ID</th>
-              <th className="p-4 font-medium">Status</th>
-              <th className="p-4 font-medium">Categoria</th>
-              <th className="p-4 font-medium">Prioridade</th>
-              <th className="p-4 font-medium">Data</th>
-              <th className="p-4 font-medium text-right">Ações</th>
+              <th className="p-4 font-medium text-center">ID</th>
+              <th className="p-4 font-medium text-center">Título</th>
+              {user?.role !== 'CLIENT' && (<th className="p-4 font-medium text-center">Cliente</th>)}
+              <th className="p-4 font-medium text-center">Status</th>
+              <th className="p-4 font-medium text-center">Categoria</th>
+              <th className="p-4 font-medium text-center">Prioridade</th>
+              <th className="p-4 font-medium text-center">Data</th>
+              <th className="p-4 font-medium text-center">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
             {loading ? (
               <tr>
-                <td colSpan="6" className="p-8 text-center text-slate-500">Carregando chamados...</td>
+                <td colSpan="8" className="p-8 text-center text-slate-500">Carregando chamados...</td>
               </tr>
             ) : tickets.length === 0 ? (
               <tr>
-                <td colSpan="6" className="p-8 text-center text-slate-500">Nenhum chamado encontrado.</td>
+                <td colSpan="8" className="p-8 text-center text-slate-500">Nenhum chamado encontrado.</td>
               </tr>
             ) : tickets.map((ticket) => (
               <tr key={ticket.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-sm text-slate-700 dark:text-slate-300">
-                <td className="p-4 font-medium text-slate-900 dark:text-white">#{ticket.id}</td>
+                <td className="p-4 font-medium text-slate-900 dark:text-white text-center">#{ticket.id}</td>
                 <td className="p-4">{ticket.title}</td>
-                <td className="p-4">{ticket.customerId}</td>
-                <td className="p-4">
+                {user?.role !== 'CLIENT' && (<td className="p-4 text-center">{ticket.customerName || ticket.customerId}</td>)}
+                <td className="p-4 text-center">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-medium
                     ${ticket.status === 'OPEN' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' : ''}
                     ${ticket.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' : ''}
@@ -166,7 +186,7 @@ export default function TicketList() {
                     {translateStatus(ticket.status)}
                   </span>
                 </td>
-                <td className="p-4">
+                <td className="p-4 text-center">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-medium
                     ${ticket.category === 'SOFTWARE' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' : ''}
                     ${ticket.category === 'HARDWARE' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' : ''}
@@ -175,7 +195,7 @@ export default function TicketList() {
                     {ticket.category}
                   </span>
                 </td>
-                <td className="p-4">
+                <td className="p-4 text-center">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-medium
                     ${ticket.priority === 'CRITICAL' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' : ''}
                     ${ticket.priority === 'HIGH' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400' : ''}
@@ -185,11 +205,12 @@ export default function TicketList() {
                     {translatePriority(ticket.priority)}
                   </span>
                 </td>
-                <td className="p-4 text-slate-500 dark:text-slate-400">
+                <td className="p-4 text-slate-500 dark:text-slate-400 text-center">
                   {new Date(ticket.createdAt).toLocaleDateString('pt-BR')}
                 </td>
-                <td className="p-4 text-right">
-                  <Link to={`/tickets/${ticket.id}`} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium">
+                <td className="p-4 text-center">
+                  <Link to={`/tickets/${ticket.id}`} className="inline-flex items-center justify-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium">
+                    <Info size={16}/>
                     Detalhes
                   </Link>
                 </td>
