@@ -2,32 +2,41 @@ import { useState, useEffect } from 'react';
 import { Search, Plus, Filter } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ticketService } from '../services/ticketService';
-import { translateStatus } from '../utils/translations';
+import { translatePriority, translateStatus } from '../utils/translations';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function TicketList() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
   useEffect(() => {
     fetchTickets();
-  }, []);
+  }, [user, statusFilter, priorityFilter, categoryFilter]); // Refetch when filters change
 
   const fetchTickets = async () => {
     try {
       setLoading(true);
-      if(user?.role === 'ADMIN'){
-        const data = await ticketService.getTickets(0, 50); 
-        setTickets(data.content || []);
-      } else if (user?.role === 'TECHNICIAN'){
-        const data = await ticketService.getTicketByTechnicianId(user?.id); 
-        setTickets(data.content || []);
-      } else{
-        const data = await ticketService.getTicketByCustomerId(user?.id); 
-        setTickets(data.content || []);
+      
+      const filters = {};
+      
+      if (user?.role === 'TECHNICIAN') {
+        filters.technicianId = user?.id;
+      } else if (user?.role === 'CLIENT') {
+        filters.customerId = user?.id;
       }
+      
+      if (searchTerm) filters.title = searchTerm;
+      if (statusFilter) filters.status = statusFilter;
+      if (priorityFilter) filters.priority = priorityFilter;
+      if (categoryFilter) filters.category = categoryFilter;
+
+      const data = await ticketService.getTickets(0, 50, filters); 
+      setTickets(data.content || []);
     } catch (error) {
       console.error('Erro ao buscar chamados', error);
     } finally {
@@ -37,27 +46,15 @@ export default function TicketList() {
 
   const handleSearch = async (e) => {
     if (e.key === 'Enter') {
-      try {
-        setLoading(true);
-        if (searchTerm) {
-          const data = await ticketService.searchTickets(searchTerm, 0, 50);
-          setTickets(data.content || []);
-        } else {
-          fetchTickets();
-        }
-      } catch (error) {
-        console.error('Erro ao buscar', error);
-      } finally {
-        setLoading(false);
-      }
+      fetchTickets();
     }
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between gap-4">
-        <div className="flex gap-4 w-full sm:w-auto">
-          <div className="relative flex-1 sm:w-80">
+      <div className="flex flex-col xl:flex-row justify-between gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 w-full xl:w-auto">
+          <div className="relative flex-1 sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={20} />
             <input 
               type="text" 
@@ -68,10 +65,42 @@ export default function TicketList() {
               onKeyDown={handleSearch}
             />
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors duration-200">
-            <Filter size={20} />
-            Filtros
-          </button>
+          
+          <select 
+            value={statusFilter} 
+            onChange={e => setStatusFilter(e.target.value)}
+            className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 text-sm cursor-pointer"
+          >
+            <option value="">Status (Todos)</option>
+            <option value="OPEN">Aberto</option>
+            <option value="IN_PROGRESS">Em Atendimento</option>
+            <option value="WAITING">Aguardando</option>
+            <option value="RESOLVED">Resolvido</option>
+            <option value="CLOSED">Fechado</option>
+          </select>
+
+          <select 
+            value={priorityFilter} 
+            onChange={e => setPriorityFilter(e.target.value)}
+            className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 text-sm cursor-pointer"
+          >
+            <option value="">Prioridade (Todas)</option>
+            <option value="LOW">Baixa</option>
+            <option value="MEDIUM">Média</option>
+            <option value="HIGH">Alta</option>
+            <option value="CRITICAL">Crítica</option>
+          </select>
+
+          <select 
+            value={categoryFilter} 
+            onChange={e => setCategoryFilter(e.target.value)}
+            className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 text-sm cursor-pointer"
+          >
+            <option value="">Categoria (Todas)</option>
+            <option value="HARDWARE">Hardware</option>
+            <option value="SOFTWARE">Software</option>
+            <option value="NETWORK">Rede</option>
+          </select>
         </div>
         
         {user?.role === 'CLIENT' && (<Link 
@@ -91,6 +120,8 @@ export default function TicketList() {
               <th className="p-4 font-medium">Título</th>
               <th className="p-4 font-medium">Cliente ID</th>
               <th className="p-4 font-medium">Status</th>
+              <th className="p-4 font-medium">Categoria</th>
+              <th className="p-4 font-medium">Prioridade</th>
               <th className="p-4 font-medium">Data</th>
               <th className="p-4 font-medium text-right">Ações</th>
             </tr>
@@ -113,10 +144,30 @@ export default function TicketList() {
                   <span className={`px-2.5 py-1 rounded-full text-xs font-medium
                     ${ticket.status === 'OPEN' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' : ''}
                     ${ticket.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' : ''}
+                    ${ticket.status === 'WAITING' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' : ''}
                     ${ticket.status === 'RESOLVED' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : ''}
                     ${ticket.status === 'CLOSED' ? 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300' : ''}
                   `}>
                     {translateStatus(ticket.status)}
+                  </span>
+                </td>
+                <td className="p-4">
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium
+                    ${ticket.category === 'SOFTWARE' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' : ''}
+                    ${ticket.category === 'HARDWARE' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' : ''}
+                    ${ticket.category === 'NETWORK' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : ''}
+                  `}>
+                    {ticket.category}
+                  </span>
+                </td>
+                <td className="p-4">
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium
+                    ${ticket.priority === 'CRITICAL' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' : ''}
+                    ${ticket.priority === 'HIGH' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400' : ''}
+                    ${ticket.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' : ''}
+                    ${ticket.priority === 'LOW' ? 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300' : ''}
+                  `}>
+                    {translatePriority(ticket.priority)}
                   </span>
                 </td>
                 <td className="p-4 text-slate-500 dark:text-slate-400">
