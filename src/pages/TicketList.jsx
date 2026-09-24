@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Plus, Filter } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ticketService } from '../services/ticketService';
 import { translatePriority, translateStatus } from '../utils/translations';
@@ -16,9 +16,9 @@ export default function TicketList() {
 
   useEffect(() => {
     fetchTickets();
-  }, [user, statusFilter, priorityFilter, categoryFilter]); // Refetch when filters change
+  }, [user, statusFilter, priorityFilter, categoryFilter]);
 
-  const fetchTickets = async () => {
+  const fetchTickets = async (overrideSearchTerm = null) => {
     try {
       setLoading(true);
       
@@ -30,7 +30,8 @@ export default function TicketList() {
         filters.customerId = user?.id;
       }
       
-      if (searchTerm) filters.title = searchTerm;
+      const currentSearch = overrideSearchTerm !== null ? overrideSearchTerm : searchTerm;
+      if (currentSearch) filters.title = currentSearch;
       if (statusFilter) filters.status = statusFilter;
       if (priorityFilter) filters.priority = priorityFilter;
       if (categoryFilter) filters.category = categoryFilter;
@@ -55,15 +56,26 @@ export default function TicketList() {
       <div className="flex flex-col xl:flex-row justify-between gap-4">
         <div className="flex flex-col sm:flex-row gap-4 w-full xl:w-auto">
           <div className="relative flex-1 sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={20} />
             <input 
               type="text" 
-              placeholder="Buscar chamados e aperte Enter..." 
-              className="w-full pl-10 pr-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white transition-colors duration-200"
+              placeholder="Buscar chamados..." 
+              className="w-full pl-4 pr-10 py-2 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white transition-colors duration-200"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSearchTerm(value);
+                if (value === '') {
+                  fetchTickets('');
+                }
+              }}
               onKeyDown={handleSearch}
             />
+            <button 
+              onClick={() => fetchTickets()}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 dark:text-slate-500 dark:hover:text-blue-400 transition-colors"
+            >
+              <Search size={20} />
+            </button>
           </div>
           
           <select 
@@ -76,7 +88,7 @@ export default function TicketList() {
             <option value="IN_PROGRESS">Em Atendimento</option>
             <option value="WAITING">Aguardando</option>
             <option value="RESOLVED">Resolvido</option>
-            <option value="CLOSED">Fechado</option>
+            <option value="CLOSED">Finalizado</option>
           </select>
 
           <select 
