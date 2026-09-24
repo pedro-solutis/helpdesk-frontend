@@ -1,0 +1,76 @@
+import { useState, useEffect } from 'react';
+import { Search, Plus, Filter } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { userService } from '../services/userService';
+
+export default function UserList() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const data = await userService.getUsers(0, 50);
+      setUsers(data.content || []);
+    } catch (error) {
+      console.error('Erro ao buscar usuários', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Usuários</h2>
+        <Link 
+          to="/users/new" 
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          <Plus size={20} />
+          Novo Usuário
+        </Link>
+      </div>
+
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors duration-200">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 text-sm text-slate-500 dark:text-slate-400">
+              <th className="p-4 font-medium">ID</th>
+              <th className="p-4 font-medium">Nome</th>
+              <th className="p-4 font-medium">Email</th>
+              <th className="p-4 font-medium">Papel (Role)</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+            {loading ? (
+              <tr>
+                <td colSpan="5" className="p-8 text-center text-slate-500">Carregando usuários...</td>
+              </tr>
+            ) : users.length === 0 ? (
+              <tr>
+                <td colSpan="5" className="p-8 text-center text-slate-500">Nenhum usuário encontrado.</td>
+              </tr>
+            ) : users.map((u) => (
+              <tr key={u.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-sm text-slate-700 dark:text-slate-300">
+                <td className="p-4 font-medium text-slate-900 dark:text-white">#{u.id}</td>
+                <td className="p-4">{u.name}</td>
+                <td className="p-4">{u.email}</td>
+                <td className="p-4">
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300`}>
+                    {u.role}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
