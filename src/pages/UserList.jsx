@@ -7,15 +7,18 @@ import { translateRole } from '../utils/translations';
 export default function UserList() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [currentPage]);
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const data = await userService.getUsers(0, 50);
+      const data = await userService.getUsers(currentPage, 10);
+      setTotalPages(data.totalPages || 0); 
       setUsers(data.content || []);
     } catch (error) {
       console.error('Erro ao buscar usuários', error);
@@ -23,7 +26,8 @@ export default function UserList() {
       setLoading(false);
     }
   };
-    const handleDelete = async (id) => {
+
+  const handleDelete = async (id) => {
     if (window.confirm('Tem certeza que deseja deletar este usuário?')) {
       try {
         await userService.deleteUser(id);
@@ -87,6 +91,27 @@ export default function UserList() {
             ))}
           </tbody>
         </table>
+        {totalPages > 1 &&(
+          <div className="p-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
+            <button 
+              disabled={currentPage === 0}
+              onClick={() => setCurrentPage(p => p - 1)}
+              className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
+            >
+              Anterior
+            </button>
+            <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+              Página {currentPage + 1} de {totalPages}
+            </span>
+            <button 
+              disabled={currentPage === totalPages - 1}
+              onClick={() => setCurrentPage(p => p + 1)}
+              className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
+            >
+              Próxima
+            </button>
+          </div> 
+        )}
       </div>
     </div>
   );
