@@ -45,6 +45,17 @@ export default function NotificationList() {
     }
   };
 
+  const handleMarkAsRead = async (id) => {
+    try {
+      await notificationService.readNotification(id);
+      setNotifications(notifications.map(n => 
+        n.id === id ? { ...n, read: true } : n
+      ));
+    } catch (error) {
+      console.error('Erro ao marcar notificação como lida', error);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex justify-between items-end">
@@ -114,6 +125,15 @@ export default function NotificationList() {
                         >
                           Ver Chamado #{notification.ticketId}
                         </Link>
+                      )}
+                      {!notification.read && (
+                        <button
+                          onClick={() => handleMarkAsRead(notification.id)}
+                          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline flex items-center gap-1 ml-auto"
+                        >
+                          <CheckCircle2 size={14} />
+                          Marcar como lida
+                        </button>
                       )}
                     </div>
                   </div>
