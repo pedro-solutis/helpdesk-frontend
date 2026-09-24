@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import UserList from './pages/UserList';
 import UserForm from './pages/UserForm';
 import UserDetails from './pages/UserDetails';
+import NotificationList from './pages/NotificationList';
 
 function PrivateRoute({ children }) {
   const { user } = useAuth();
@@ -32,6 +33,7 @@ function App() {
               <Route path="/users" element={<UserList />} />
               <Route path='/users/new' element={<UserForm />} />
               <Route path='/users/:id' element={<UserDetails/>} />
+              <Route path='/notifications' element={<NotificationList/>} />
             </Route>
           </Routes>
         </BrowserRouter>
