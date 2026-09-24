@@ -8,6 +8,13 @@ export default function NotificationList() {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState('ALL');
+
+  const filteredNotifications = notifications.filter(notification => {
+    if (filterStatus === 'READ') return notification.read;
+    if (filterStatus === 'UNREAD') return !notification.read;
+    return true;
+  });
 
   useEffect(() => {
     fetchNotifications();
@@ -50,19 +57,30 @@ export default function NotificationList() {
             Acompanhe as atualizações dos seus chamados.
           </p>
         </div>
+        <div>
+          <select 
+            value={filterStatus} 
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="ALL">Todas</option>
+            <option value="UNREAD">Não Lidas</option>
+            <option value="READ">Lidas</option>
+          </select>
+        </div>
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors duration-200">
         {loading ? (
           <div className="p-8 text-center text-slate-500">Carregando notificações...</div>
-        ) : notifications.length === 0 ? (
+        ) : filteredNotifications.length === 0 ? (
           <div className="p-8 text-center text-slate-500 flex flex-col items-center">
             <Bell size={48} className="text-slate-300 dark:text-slate-600 mb-4" />
-            <p>Você não possui nenhuma notificação no momento.</p>
+            <p>Você não possui nenhuma notificação {filterStatus === 'READ' ? 'lida' : filterStatus === 'UNREAD' ? 'não lida' : ''} no momento.</p>
           </div>
         ) : (
           <ul className="divide-y divide-slate-200 dark:divide-slate-700">
-            {notifications.map((notification) => (
+            {filteredNotifications.map((notification) => (
               <li 
                 key={notification.id} 
                 className={`p-6 transition-colors ${
