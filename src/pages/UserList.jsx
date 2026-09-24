@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Plus, Filter } from 'lucide-react';
+import { Search, Plus, Filter, Trash, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { userService } from '../services/userService';
 import { translateRole } from '../utils/translations';
@@ -60,7 +60,7 @@ export default function UserList() {
               <th className="p-4 font-medium">Nome</th>
               <th className="p-4 font-medium">Email</th>
               <th className="p-4 font-medium">Papel</th>
-              <th className="p-4 font-medium text-right">Ações</th>
+              <th className="p-4 font-medium text-center">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
@@ -82,10 +82,15 @@ export default function UserList() {
                     {translateRole(u.role)}
                   </span>
                 </td>
-                <td className="p-4 text-right space-x-4">
-                  <button onClick={() => handleDelete(u.id)} className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium">
-                    Deletar
-                  </button>
+                <td className="p-4">
+                  <div className="flex items-center justify-center gap-4">
+                    <Link to={`/users/${u.id}`} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors" title="Detalhes">
+                      <Info size={20} />
+                    </Link>
+                    <button onClick={() => handleDelete(u.id)} className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors" title="Excluir">
+                      <Trash size={20} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
