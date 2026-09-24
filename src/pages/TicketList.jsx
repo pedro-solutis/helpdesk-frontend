@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Search, Plus, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ticketService } from '../services/ticketService';
+import { userService } from '../services/userService';
 import { translatePriority, translateStatus } from '../utils/translations';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -174,7 +175,7 @@ export default function TicketList() {
               <tr key={ticket.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors text-sm text-slate-700 dark:text-slate-300">
                 <td className="p-4 font-medium text-slate-900 dark:text-white text-center">#{ticket.id}</td>
                 <td className="p-4">{ticket.title}</td>
-                {user?.role !== 'CLIENT' && (<td className="p-4 text-center">{ticket.customerName || ticket.customerId}</td>)}
+                {user?.role !== 'CLIENT' && (<td className="p-4 text-center">{ticket.customerName}</td>)}
                 <td className="p-4 text-center">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-medium
                     ${ticket.status === 'OPEN' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' : ''}
