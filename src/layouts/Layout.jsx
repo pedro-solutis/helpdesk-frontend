@@ -26,9 +26,9 @@ export default function Layout() {
         
         <nav className="flex-1 px-4 space-y-2 mt-4">
           <Link
-            to="/users/:id"
+            to={`/users/${user.id}`}
             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-              location.pathname.startsWith('/users/:id') ? 'bg-blue-600 text-white' : 'hover:bg-slate-800 text-slate-300 hover:text-white'
+              location.pathname.startsWith(`/users/${user.id}`) ? 'bg-blue-600 text-white' : 'hover:bg-slate-800 text-slate-300 hover:text-white'
             }`}
           >
             <User size={20} />
