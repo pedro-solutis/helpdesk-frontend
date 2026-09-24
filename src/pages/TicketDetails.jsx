@@ -173,7 +173,7 @@ export default function TicketDetails() {
     }
   };
 
-    const handleCloseResolvedTicket = async () => {
+  const handleCloseResolvedTicket = async () => {
     try {
       if (window.confirm("Deseja realmente encerrar este chamado?")) {
         await ticketService.closeTicket(id);
@@ -359,12 +359,12 @@ export default function TicketDetails() {
                     <span className="text-sm text-slate-600 dark:text-slate-400">
                       {(ticket.technicianId && technician) ? `Técnico atual: ${technician.name}` : 'Nenhum técnico atribuído'}
                     </span>
-                    <button 
+                    {ticket.status !== 'CLOSED' && (<button 
                       onClick={() => setIntentTech(true)}
                       className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
                     >
                       Alterar técnico
-                    </button>
+                    </button>)}
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -402,17 +402,17 @@ export default function TicketDetails() {
             )}
             
             {/* Bloco: Status */}
-            {user?.role !== 'CLIENT' && (<div className="flex flex-col">
+            {user?.role === 'TECHNICIAN' && (<div className="flex flex-col">
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Status do Chamado</label>
               {!intentStatus ? (
                 <div className="flex flex-col items-start gap-2">
                   <span className="text-sm text-slate-600 dark:text-slate-400">Atual: {translateStatus(ticket.status)}</span>
-                  <button 
+                  {ticket.status !== 'CLOSED' &&(<button 
                     onClick={() => setIntentStatus(true)}
                     className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
                   >
                     Alterar status
-                  </button>
+                  </button>)}
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -451,12 +451,12 @@ export default function TicketDetails() {
               {!intentPriority ? (
                 <div className="flex flex-col items-start gap-2">
                   <span className="text-sm text-slate-600 dark:text-slate-400">Atual: {translatePriority(ticket.priority)}</span>
-                  <button 
+                  {ticket.status !== 'CLOSED' &&(<button 
                     onClick={() => setIntentPriority(true)}
                     className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
                   >
                     Alterar prioridade
-                  </button>
+                  </button>)}
                 </div>
               ) : (
                 <div className="space-y-3">
