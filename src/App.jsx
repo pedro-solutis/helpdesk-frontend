@@ -8,6 +8,8 @@ import TicketForm from './pages/TicketForm';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import UserList from './pages/UserList';
+import UserForm from './pages/UserForm';
+import UserDetails from './pages/UserDetails';
 
 function PrivateRoute({ children }) {
   const { user } = useAuth();
@@ -27,7 +29,9 @@ function App() {
               <Route path="/tickets" element={<TicketList />} />
               <Route path="/tickets/new" element={<TicketForm />} />
               <Route path="/tickets/:id" element={<TicketDetails />} />
-              <Route path="/users" element={<UserList/>} />
+              <Route path="/users" element={<UserList />} />
+              <Route path='/users/new' element={<UserForm />} />
+              <Route path='/users/:id' element={<UserDetails/>} />
             </Route>
           </Routes>
         </BrowserRouter>
