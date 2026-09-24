@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { userService } from '../services/userService';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, EyeOff, Eye } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function UserForm() {
   const navigate = useNavigate();
-  const { user } = useAuth;
+  const { user } = useAuth();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -15,6 +15,7 @@ export default function UserForm() {
     role: 'CLIENT'
   });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,6 +69,7 @@ export default function UserForm() {
               className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
               value={formData.email}
               onChange={handleChange}
+              placeholder='Ex: nome.sobrenome@solutis.com.br'
             />
           </div>
 
@@ -76,15 +78,25 @@ export default function UserForm() {
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Senha
               </label>
-              <input 
-                type="password" 
-                name="password"
-                required
-                minLength={8}
-                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
-                value={formData.password}
-                onChange={handleChange}
-              />
+              <div className="relative">
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  name="password"
+                  required
+                  minLength={8}
+                  className="w-full px-4 py-2 pr-12 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder='••••••••'
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors focus:outline-none flex items-center"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
 
             <div>
