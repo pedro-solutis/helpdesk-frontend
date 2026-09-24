@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Clock, User, Tag, AlertCircle, Edit2, Check, X, Settings2 } from 'lucide-react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Clock, User, Tag, AlertCircle, Edit2, Check, X, Settings2, Trash } from 'lucide-react';
 import { ticketService } from '../services/ticketService';
 import { userService } from '../services/userService';
 import { useAuth } from '../contexts/AuthContext';
@@ -9,6 +9,7 @@ import { translatePriority, translateStatus } from '../utils/translations';
 export default function TicketDetails() {
   const { id } = useParams();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [ticket, setTicket] = useState(null);
   const [customer, setCustomer] = useState(null);
   const [technician, setTechnician] = useState(null);
@@ -185,6 +186,19 @@ export default function TicketDetails() {
     }
   };
 
+  const handleDeleteTicket = async () => {
+    try {
+      if (window.confirm("ATENÇÃO: Deseja realmente excluir permanentemente este chamado? Esta ação não pode ser desfeita.")) {
+        await ticketService.deleteTicket(id);
+        alert('Chamado excluído com sucesso!');
+        navigate('/tickets');
+      }
+    } catch (error) {
+      console.error('Erro ao excluir chamado', error);
+      alert('Erro ao excluir chamado.');
+    }
+  };
+
   if (loading) {
     return <div className="p-8 text-center text-slate-500">Carregando chamado...</div>;
   }
@@ -217,6 +231,15 @@ export default function TicketDetails() {
                   >
                     <Check size={16} />
                     Encerrar Chamado
+                  </button>
+                )}
+                {(user?.role === 'ADMIN' || user?.role === 'CLIENT') && (ticket.status === 'OPEN') && ticket.active == true && (
+                  <button 
+                    onClick={handleDeleteTicket}
+                    className="px-4 py-1.5 border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20 text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
+                  >
+                    <Trash size={16} />
+                    Excluir
                   </button>
                 )}
               </div>
