@@ -121,16 +121,10 @@ export default function Dashboard() {
                   {ticket.createdAt ? new Date(ticket.createdAt).toLocaleDateString('pt-BR') : '-'}
                 </td>
                 <td className="p-4 text-right">
-                  <Link to={`/tickets/${ticket.id}`} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium">
-                    <Info size={20}/>
+                  <Link to={`/tickets/${ticket.id}`} className="inline-flex items-center gap-1 justify-end text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium">
+                    <Info size={18} />
                     Detalhes
                   </Link>
-                  {user?.role !== 'TECHNICIAN' && (
-                    <Link to={`/tickets/${ticket.id}`} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium">
-                      <Trash size={20}/>
-                      Deletar
-                    </Link>
-                  )}
                 </td>
               </tr>
               ))}
