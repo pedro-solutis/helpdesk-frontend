@@ -12,11 +12,13 @@ export default function TicketList() {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const { user } = useAuth();
 
   useEffect(() => {
     fetchTickets();
-  }, [user, statusFilter, priorityFilter, categoryFilter]);
+  }, [user, statusFilter, priorityFilter, categoryFilter, currentPage]);
 
   const fetchTickets = async (overrideSearchTerm = null) => {
     try {
@@ -36,7 +38,8 @@ export default function TicketList() {
       if (priorityFilter) filters.priority = priorityFilter;
       if (categoryFilter) filters.category = categoryFilter;
 
-      const data = await ticketService.getTickets(0, 50, filters); 
+      const data = await ticketService.getTickets(currentPage, 10, filters);
+      setTotalPages(data.totalPages || 0); 
       setTickets(data.content || []);
     } catch (error) {
       console.error('Erro ao buscar chamados', error);
@@ -194,6 +197,27 @@ export default function TicketList() {
             ))}
           </tbody>
         </table>
+        {totalPages > 1 &&(
+          <div className="p-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
+            <button 
+              disabled={currentPage === 0}
+              onClick={() => setCurrentPage(p => p - 1)}
+              className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
+            >
+              Anterior
+            </button>
+            <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+              Página {currentPage + 1} de {totalPages}
+            </span>
+            <button 
+              disabled={currentPage === totalPages - 1}
+              onClick={() => setCurrentPage(p => p + 1)}
+              className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
+            >
+              Próxima
+            </button>
+          </div> 
+        )}
       </div>
     </div>
   );
