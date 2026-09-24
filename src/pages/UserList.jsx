@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Search, Plus, Filter } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { userService } from '../services/userService';
+import { translateRole } from '../utils/translations';
 
 export default function UserList() {
   const [users, setUsers] = useState([]);
@@ -20,6 +21,17 @@ export default function UserList() {
       console.error('Erro ao buscar usuários', error);
     } finally {
       setLoading(false);
+    }
+  };
+    const handleDelete = async (id) => {
+    if (window.confirm('Tem certeza que deseja deletar este usuário?')) {
+      try {
+        await userService.deleteUser(id);
+        fetchUsers();
+      } catch (error) {
+        console.error('Erro ao deletar', error);
+        alert('Erro ao deletar usuário.');
+      }
     }
   };
 
@@ -43,7 +55,8 @@ export default function UserList() {
               <th className="p-4 font-medium">ID</th>
               <th className="p-4 font-medium">Nome</th>
               <th className="p-4 font-medium">Email</th>
-              <th className="p-4 font-medium">Papel (Role)</th>
+              <th className="p-4 font-medium">Papel</th>
+              <th className="p-4 font-medium text-right">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
@@ -62,8 +75,13 @@ export default function UserList() {
                 <td className="p-4">{u.email}</td>
                 <td className="p-4">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300`}>
-                    {u.role}
+                    {translateRole(u.role)}
                   </span>
+                </td>
+                <td className="p-4 text-right space-x-4">
+                  <button onClick={() => handleDelete(u.id)} className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium">
+                    Deletar
+                  </button>
                 </td>
               </tr>
             ))}
