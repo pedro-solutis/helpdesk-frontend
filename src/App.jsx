@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import Layout from './layouts/Layout';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -17,6 +17,18 @@ function PrivateRoute({ children }) {
   return user ? children : <Navigate to="/login" replace />;
 }
 
+function RequireRole({ allowedRoles }) {
+  const { user } = useAuth();
+  
+  if (!user) return <Navigate to="/login" replace />;
+  
+  if (!allowedRoles.includes(user.role)) {
+    return <Navigate to="/" replace />; 
+  }
+  
+  return <Outlet />;
+}
+
 function App() {
   return (
     <ThemeProvider>
@@ -30,10 +42,14 @@ function App() {
               <Route path="/tickets" element={<TicketList />} />
               <Route path="/tickets/new" element={<TicketForm />} />
               <Route path="/tickets/:id" element={<TicketDetails />} />
-              <Route path="/users" element={<UserList />} />
-              <Route path='/users/new' element={<UserForm />} />
+              <Route element={<RequireRole allowedRoles={['TECHNICIAN','CLIENT']} />}>
+                <Route path='/notifications' element={<NotificationList/>} />
+              </Route>
+              <Route element={<RequireRole allowedRoles={['ADMIN']} />}>
+                <Route path="/users" element={<UserList />} />
+                <Route path='/users/new' element={<UserForm />} />
+              </Route>
               <Route path='/users/:id' element={<UserDetails/>} />
-              <Route path='/notifications' element={<NotificationList/>} />
             </Route>
           </Routes>
         </BrowserRouter>
