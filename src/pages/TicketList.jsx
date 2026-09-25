@@ -259,23 +259,43 @@ export default function TicketList() {
         </table>
         {totalPages > 1 &&(
           <div className="p-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
-            <button 
-              disabled={currentPage === 0}
-              onClick={() => setCurrentPage(p => p - 1)}
-              className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
-            >
-              Anterior
-            </button>
+            <div className="flex gap-2">
+              <button 
+                disabled={currentPage === 0}
+                onClick={() => setCurrentPage(0)}
+                className="hidden sm:block px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
+              >
+                Primeira
+              </button>
+              <button 
+                disabled={currentPage === 0}
+                onClick={() => setCurrentPage(p => p - 1)}
+                className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
+              >
+                Anterior
+              </button>
+            </div>
+            
             <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
               Página {currentPage + 1} de {totalPages}
             </span>
-            <button 
-              disabled={currentPage === totalPages - 1}
-              onClick={() => setCurrentPage(p => p + 1)}
-              className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
-            >
-              Próxima
-            </button>
+            
+            <div className="flex gap-2">
+              <button 
+                disabled={currentPage === totalPages - 1}
+                onClick={() => setCurrentPage(p => p + 1)}
+                className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
+              >
+                Próxima
+              </button>
+              <button 
+                disabled={currentPage === totalPages - 1}
+                onClick={() => setCurrentPage(totalPages - 1)}
+                className="hidden sm:block px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
+              >
+                Última
+              </button>
+            </div>
           </div> 
         )}
       </div>
