@@ -44,11 +44,9 @@ export default function UserDetails() {
   const handleSave = async () => {
     try {
       setSaving(true);
-      const updatePayload = {
-        name: formData.name ? formData.name : '',
-        role: formData.role ? formData.role : '',
-        password: '',
-      };
+      const updatePayload = {};
+      if (formData.name) updatePayload.name = formData.name;
+      if (formData.role) updatePayload.role = formData.role;
 
       if (changePassword) {
         if (!formData.password || formData.password.trim() === '') {
@@ -110,7 +108,14 @@ export default function UserDetails() {
             <div className="flex items-center gap-4">
               {!isEditing && (
                 <button
-                  onClick={() => setIsEditing(true)}
+                  onClick={() => {
+                    setFormData({
+                      name: detailedUser.name,
+                      role: detailedUser.role,
+                      password: ''
+                    });
+                    setIsEditing(true);
+                  }}
                   className="px-4 py-1.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-2 text-sm font-medium"
                   title='Editar'
                 >
