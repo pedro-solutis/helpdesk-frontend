@@ -9,6 +9,9 @@ export default function NotificationList() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('ALL');
+  const [sortOrder, setSortOrder] = useState('DESC');
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   const filteredNotifications = notifications.filter(notification => {
     if (filterStatus === 'READ') return notification.read;
@@ -18,26 +21,28 @@ export default function NotificationList() {
 
   useEffect(() => {
     fetchNotifications();
-  }, [user]);
+  }, [user, currentPage, sortOrder]);
 
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const filter = {};
+      const filter = {
+        sort: `createdAt,${sortOrder.toLowerCase()}`
+      };
       if (user?.id && user?.role !== 'ADMIN') {
         filter.id = user?.id;
-        const data = await notificationService.getAllNotifications(0,10,filter);
-        const list = data.content || data || [];
-        
-        const normalizedList = list.map(n => ({
-          ...n,
-          id: n.id || n.notificationId
-        }));
-        
-        setNotifications(normalizedList);
       }
-      const data = await notificationService.getAllNotifications();
-      setNotifications(data.content || []);
+      
+      const data = await notificationService.getAllNotifications(currentPage, 10, filter);
+      const list = data.content || data || [];
+      
+      const normalizedList = (Array.isArray(list) ? list : []).map(n => ({
+        ...n,
+        id: n.id || n.notificationId
+      }));
+      
+      setNotifications(normalizedList);
+      setTotalPages(data.totalPages || 0);
     } catch (error) {
       console.error('Erro ao buscar notificações', error);
     } finally {
@@ -68,7 +73,18 @@ export default function NotificationList() {
             Acompanhe as atualizações dos seus chamados.
           </p>
         </div>
-        <div>
+        <div className="flex gap-3">
+          <select 
+            value={sortOrder} 
+            onChange={(e) => {
+              setSortOrder(e.target.value);
+              setCurrentPage(0);
+            }}
+            className="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="DESC">Mais recentes</option>
+            <option value="ASC">Mais antigos</option>
+          </select>
           <select 
             value={filterStatus} 
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -141,6 +157,48 @@ export default function NotificationList() {
               </li>
             ))}
           </ul>
+        )}
+        
+        {totalPages > 1 && (
+          <div className="p-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
+            <div className="flex gap-2">
+              <button 
+                disabled={currentPage === 0}
+                onClick={() => setCurrentPage(0)}
+                className="hidden sm:block px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
+              >
+                Primeira
+              </button>
+              <button 
+                disabled={currentPage === 0}
+                onClick={() => setCurrentPage(p => p - 1)}
+                className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
+              >
+                Anterior
+              </button>
+            </div>
+            
+            <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+              Página {currentPage + 1} de {totalPages}
+            </span>
+            
+            <div className="flex gap-2">
+              <button 
+                disabled={currentPage === totalPages - 1}
+                onClick={() => setCurrentPage(p => p + 1)}
+                className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
+              >
+                Próxima
+              </button>
+              <button 
+                disabled={currentPage === totalPages - 1}
+                onClick={() => setCurrentPage(totalPages - 1)}
+                className="hidden sm:block px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
+              >
+                Última
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </div>
