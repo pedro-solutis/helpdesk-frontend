@@ -37,13 +37,13 @@ export default function Dashboard() {
   const fetchTickets = async () =>{
     try {
       if (user?.role === 'ADMIN'){
-        const data = await ticketService.getTickets(0, 5);
+        const data = await ticketService.getTickets(0, 5, {sort:'createdAt,desc'});
         setTickets(data.content || []);
       }else if (user?.role === 'TECHNICIAN'){
-        const data = await ticketService.getTickets(0, 5, { technicianId: user?.id });
+        const data = await ticketService.getTickets(0, 5, { technicianId: user?.id,sort:'createdAt,desc' });
         setTickets(data.content || []);
       }else {
-        const data = await ticketService.getTickets(0, 5, { customerId: user?.id });
+        const data = await ticketService.getTickets(0, 5, { customerId: user?.id,sort:'createdAt,desc' });
         setTickets(data.content || []);
       }
     } catch (error) {
