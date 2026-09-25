@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Bell, CheckCircle2, Circle, Clock } from 'lucide-react';
+import { Bell, CheckCircle2, Circle, Clock, CheckCheck, CircleCheck } from 'lucide-react';
 import { notificationService } from '../services/notificationService';
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
@@ -36,7 +36,8 @@ export default function NotificationList() {
       
       const normalizedList = (Array.isArray(list) ? list : []).map(n => ({
         ...n,
-        id: n.id || n.notificationId
+        id: n.id || n.notificationId,
+        read: n.read !== undefined ? n.read : (n.isRead === true)
       }));
       
       setNotifications(normalizedList);
@@ -120,7 +121,7 @@ export default function NotificationList() {
                 <div className="flex gap-4">
                   <div className="mt-1">
                     {notification.read ? (
-                      <CheckCircle2 size={20} className="text-slate-400 dark:text-slate-500" />
+                      <CircleCheck size={20} className="text-slate-400 dark:text-slate-500" />
                     ) : (
                       <Circle size={20} className="text-blue-500 fill-blue-50 dark:fill-blue-900/30" />
                     )}
@@ -143,7 +144,7 @@ export default function NotificationList() {
                           Ver Chamado #{notification.ticketId}
                         </Link>
                       )}
-                      {!notification.read && (
+                      {!notification.read ? (
                         <button
                           onClick={() => handleMarkAsRead(notification.id)}
                           className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline flex items-center gap-1 ml-auto"
@@ -151,6 +152,11 @@ export default function NotificationList() {
                           <CheckCircle2 size={14} />
                           Marcar como lida
                         </button>
+                      ) : (
+                        <span className="flex items-center gap-1 ml-auto text-green-600 dark:text-green-500 font-medium">
+                          <CheckCheck size={16} />
+                          Lida
+                        </span>
                       )}
                     </div>
                   </div>
