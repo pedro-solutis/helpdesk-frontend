@@ -11,6 +11,7 @@ export default function TicketList() {
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [sortOrder, setSortOrder] = useState('DESC');
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
@@ -19,13 +20,13 @@ export default function TicketList() {
 
   useEffect(() => {
     fetchTickets();
-  }, [user, statusFilter, priorityFilter, categoryFilter, currentPage]);
+  }, [user, statusFilter, priorityFilter, categoryFilter, currentPage, sortOrder]);
 
   const fetchTickets = async (overrideSearchTerm = null) => {
     try {
       setLoading(true);
       
-      const filters = {};
+      const filters = {sort: `createdAt,${sortOrder.toLowerCase()}`};
       
       if (user?.role === 'TECHNICIAN') {
         filters.technicianId = user?.id;
@@ -76,12 +77,13 @@ export default function TicketList() {
   };
 
   const clearFilters = () => {
-    const hasOtherFilters = statusFilter !== '' || priorityFilter !== '' || categoryFilter !== '' || currentPage !== 0;
+    const hasOtherFilters = statusFilter !== '' || priorityFilter !== '' || categoryFilter !== '' || currentPage !== 0 || sortOrder !== 'DESC';
     
     setSearchTerm('');
     setStatusFilter('');
     setPriorityFilter('');
     setCategoryFilter('');
+    setSortOrder('DESC');
     setCurrentPage(0);
 
     if (!hasOtherFilters && searchTerm !== '') {
@@ -116,6 +118,17 @@ export default function TicketList() {
             </button>
           </div>
           
+          <select 
+            value={sortOrder} 
+            onChange={e => {
+              setSortOrder(e.target.value);
+              setCurrentPage(0);
+            }}
+            className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500 text-sm cursor-pointer"
+          >
+            <option value="DESC">Mais recentes</option>
+            <option value="ASC">Mais antigos</option>
+          </select>
           <select 
             value={statusFilter} 
             onChange={e => setStatusFilter(e.target.value)}
