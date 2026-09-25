@@ -58,14 +58,14 @@ export default function Layout() {
           {user?.role === 'ADMIN' && (<Link
             to="/users"
             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-              location.pathname.startsWith('/users') ? 'bg-blue-600 text-white' : 'hover:bg-slate-800 text-slate-300 hover:text-white'
+              location.pathname.startsWith('/users') && !location.pathname.startsWith(`/users/${user.id}`) ? 'bg-blue-600 text-white' : 'hover:bg-slate-800 text-slate-300 hover:text-white'
             }`}
           >
             <Users size={20} />
             Usuários
           </Link>)}
 
-          <Link
+          {user?.role !== 'ADMIN' && (<Link
             to="/notifications"
             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
               location.pathname.startsWith('/notifications') ? 'bg-blue-600 text-white' : 'hover:bg-slate-800 text-slate-300 hover:text-white'
@@ -73,7 +73,7 @@ export default function Layout() {
           >
             <Bell size={20} />
             Notificações
-          </Link>
+          </Link>)}
         </nav>
 
         <div className="p-4 border-t border-slate-800">
