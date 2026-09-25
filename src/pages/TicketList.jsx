@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Plus, Info } from 'lucide-react';
+import { Search, Plus, Info, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ticketService } from '../services/ticketService';
 import { userService } from '../services/userService';
@@ -75,6 +75,20 @@ export default function TicketList() {
     }
   };
 
+  const clearFilters = () => {
+    const hasOtherFilters = statusFilter !== '' || priorityFilter !== '' || categoryFilter !== '' || currentPage !== 0;
+    
+    setSearchTerm('');
+    setStatusFilter('');
+    setPriorityFilter('');
+    setCategoryFilter('');
+    setCurrentPage(0);
+
+    if (!hasOtherFilters && searchTerm !== '') {
+      fetchTickets('');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col xl:flex-row justify-between gap-4">
@@ -137,6 +151,17 @@ export default function TicketList() {
             <option value="SOFTWARE">Software</option>
             <option value="NETWORK">Rede</option>
           </select>
+
+          {(searchTerm || statusFilter || priorityFilter || categoryFilter) && (
+            <button
+              onClick={clearFilters}
+              className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+              title="Limpar Filtros"
+            >
+              <X size={16} />
+              <span className="hidden sm:inline">Limpar</span>
+            </button>
+          )}
         </div>
         
         {user?.role === 'CLIENT' && (<Link 
