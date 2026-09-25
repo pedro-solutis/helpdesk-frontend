@@ -17,7 +17,7 @@ export default function Layout() {
   return (
     <div className="min-h-screen flex bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
       {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 dark:bg-slate-950 text-white flex flex-col border-r border-slate-800 dark:border-slate-800 transition-colors duration-200">
+      <aside className="w-56 bg-slate-900 dark:bg-slate-950 text-white flex flex-col border-r border-slate-800 dark:border-slate-800 transition-colors duration-200">
         <div className="p-6">
           <h1 className="text-xl font-bold flex items-center gap-2">
             Helpdesk
