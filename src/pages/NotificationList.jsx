@@ -13,15 +13,9 @@ export default function NotificationList() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  const filteredNotifications = notifications.filter(notification => {
-    if (filterStatus === 'READ') return notification.read;
-    if (filterStatus === 'UNREAD') return !notification.read;
-    return true;
-  });
-
   useEffect(() => {
     fetchNotifications();
-  }, [user, currentPage, sortOrder]);
+  }, [user, currentPage, sortOrder, filterStatus]);
 
   const fetchNotifications = async () => {
     try {
@@ -29,6 +23,10 @@ export default function NotificationList() {
       const filter = {
         sort: `createdAt,${sortOrder.toLowerCase()}`
       };
+      
+      if (filterStatus === 'READ') filter.read = true;
+      if (filterStatus === 'UNREAD') filter.read = false;
+
       if (user?.id && user?.role !== 'ADMIN') {
         filter.id = user?.id;
       }
@@ -87,7 +85,10 @@ export default function NotificationList() {
           </select>
           <select 
             value={filterStatus} 
-            onChange={(e) => setFilterStatus(e.target.value)}
+            onChange={(e) => {
+              setFilterStatus(e.target.value);
+              setCurrentPage(0);
+            }}
             className="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="ALL">Todas</option>
@@ -100,14 +101,14 @@ export default function NotificationList() {
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors duration-200">
         {loading ? (
           <div className="p-8 text-center text-slate-500">Carregando notificações...</div>
-        ) : filteredNotifications.length === 0 ? (
+        ) : notifications.length === 0 ? (
           <div className="p-8 text-center text-slate-500 flex flex-col items-center">
             <Bell size={48} className="text-slate-300 dark:text-slate-600 mb-4" />
             <p>Você não possui nenhuma notificação {filterStatus === 'READ' ? 'lida' : filterStatus === 'UNREAD' ? 'não lida' : ''} no momento.</p>
           </div>
         ) : (
           <ul className="divide-y divide-slate-200 dark:divide-slate-700">
-            {filteredNotifications.map((notification) => (
+            {notifications.map((notification) => (
               <li 
                 key={notification.id} 
                 className={`p-6 transition-colors ${
