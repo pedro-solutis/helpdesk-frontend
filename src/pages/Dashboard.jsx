@@ -62,13 +62,11 @@ export default function Dashboard() {
     { title: 'Criticos', value: metrics.critical, icon: AlertCircle, color: 'text-red-600 dark:text-red-400', bg: 'bg-red-100 dark:bg-red-900/30' }
   ];
 
-  if (loadingMetrics) {
-    return <div className="p-8 text-center text-slate-500">Carregando dashboard...</div>;
-  }
-
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      {loadingMetrics ? (
+        <div className="p-8 text-center text-slate-500">Carregando dashboard...</div>
+      ):(<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         {statCards.map((stat, index) => {
           const Icon = stat.icon;
           return (
@@ -85,7 +83,7 @@ export default function Dashboard() {
             </div>
           );
         })}
-      </div>
+      </div>)}
 
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 transition-colors duration-200">
         <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Chamados Recentes</h3>
