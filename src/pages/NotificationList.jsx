@@ -28,7 +28,7 @@ export default function NotificationList() {
       if (filterStatus === 'UNREAD') filter.read = false;
 
       if (user?.id && user?.role !== 'ADMIN') {
-        filter.id = user?.id;
+        filter.recipientId = user?.id;
       }
       
       const data = await notificationService.getAllNotifications(currentPage, 10, filter);
