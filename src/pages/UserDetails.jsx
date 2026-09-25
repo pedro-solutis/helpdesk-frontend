@@ -91,10 +91,14 @@ export default function UserDetails() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <Link to="/users" className="inline-flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+      {user?.role === 'ADMIN' ? (<Link to="/users" className="inline-flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
         <ArrowLeft size={20} />
         Voltar para usuários
-      </Link>
+      </Link>) :
+      (<Link to="/" className="inline-flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+        <ArrowLeft size={20} />
+        Voltar para dashboard
+      </Link>)}
 
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors duration-200">
         <div className="p-6 border-b border-slate-200 dark:border-slate-700">
