@@ -98,9 +98,6 @@ export default function TicketDetails() {
       setSavingDesc(true);
       await ticketService.updateTicket(id, {
         description: newDesc,
-        category: ticket.category,
-        status: ticket.status,
-        priority: ticket.priority
       });
       setIsEditingDesc(false);
       fetchTicket();
@@ -136,10 +133,7 @@ export default function TicketDetails() {
         await ticketService.closeTicket(id);
       } else {
         await ticketService.updateTicket(id, {
-          description: ticket.description,
-          category: ticket.category,
           status: selectedStatus,
-          priority: selectedPriority
         });
       }
       alert('Status atualizado com sucesso!');
@@ -157,9 +151,6 @@ export default function TicketDetails() {
     try {
       setSavingPriority(true);
       await ticketService.updateTicket(id, {
-        description: ticket.description,
-        category: ticket.category,
-        status: ticket.status,
         priority: selectedPriority
       });
       alert('Prioridade atualizada com sucesso!');
